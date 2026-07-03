@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://gerbang:gerbang@db:5432/gerbang
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ENABLE_WHATSAPP=${ENABLE_WHATSAPP:-true}
+      - ENABLE_TELEGRAM=${ENABLE_TELEGRAM:-true}
+    volumes:
+      - wwebjs_auth:/app/.wwebjs_auth
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=gerbang
+      - POSTGRES_PASSWORD=gerbang
+      - POSTGRES_DB=gerbang
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:
+  wwebjs_auth:
