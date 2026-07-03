@@ -22,7 +22,9 @@ function buildSessionMiddleware() {
     rolling: true,
     cookie: {
       httpOnly: true,
-      sameSite: "lax",
+      // "none" is required so the session cookie is sent on cross-origin requests from the
+      // GitHub Pages login page; it requires secure:true (HTTPS), which Railway provides.
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     },
