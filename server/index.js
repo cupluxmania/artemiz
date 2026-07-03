@@ -1,6 +1,7 @@
 require("dotenv").config();
 const path = require("path");
 const express = require("express");
+const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const http = require("http");
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 app.disable("x-powered-by");
 app.use(helmet({ contentSecurityPolicy: false })); // CSP off by default so the CDN font import keeps working; tighten if you remove it
+app.use(cors({ origin: "https://cupluxmania.github.io", credentials: true }));
 app.use(express.json({ limit: "100kb" }));
 
 const sessionMiddleware = buildSessionMiddleware();
@@ -34,7 +36,7 @@ const loginLimiter = rateLimit({
 // Unauthenticated: the login page itself, its assets, the login/logout/me API, and a health
 // check (platform load balancers hit this without a session).
 app.use("/api/auth", loginLimiter, buildAuthRoutes());
-app.get("/login.html", (req, res) => res.sendFile(path.join(__dirname, "..", "public", "login.html")));
+app.get("/login.html", (req, res) => res.redirect("https://cupluxmania.github.io/artemiz/"));
 app.get("/login.js", (req, res) => res.sendFile(path.join(__dirname, "..", "public", "login.js")));
 app.get("/styles.css", (req, res) => res.sendFile(path.join(__dirname, "..", "public", "styles.css")));
 app.get("/api/health", (req, res) => res.json({ ok: true }));
