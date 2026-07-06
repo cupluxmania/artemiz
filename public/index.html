@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hospital Expo | Booth Booking System</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏥</text></svg>" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<!-- ============== LOGIN SCREEN ============== -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-bg-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="brand-icon">🏥</div>
+      <h1>Hospital Expo</h1>
+      <p>Booth Booking Management System</p>
+    </div>
+    <form id="login-form" autocomplete="off">
+      <div class="field">
+        <label for="login-username">Username</label>
+        <input type="text" id="login-username" placeholder="e.g. admin" required autofocus />
+      </div>
+      <div class="field">
+        <label for="login-password">Password</label>
+        <div class="password-wrap">
+          <input type="password" id="login-password" placeholder="••••••••" required />
+          <button type="button" id="toggle-password" class="icon-btn" tabindex="-1">👁</button>
+        </div>
+      </div>
+      <div id="login-error" class="alert alert-error" style="display:none;"></div>
+      <button type="submit" class="btn btn-primary btn-block" id="login-submit">
+        <span class="btn-label">Sign In</span>
+        <span class="spinner" style="display:none;"></span>
+      </button>
+    </form>
+    <div class="login-hint">
+      <strong>Demo accounts</strong>
+      <div class="hint-row"><span class="tag tag-admin">admin</span> admin / admin123</div>
+      <div class="hint-row"><span class="tag tag-staff">staff</span> staff / staff123</div>
+      <div class="hint-row"><span class="tag tag-viewer">viewer</span> viewer / viewer123</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== APP SHELL ============== -->
+<div id="app-shell" class="app-shell" style="display:none;">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon small">🏥</div>
+      <div class="brand-text">
+        <div class="brand-title">Hospital Expo</div>
+        <div class="brand-sub">Booking System</div>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <button class="nav-item active" data-view="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </button>
+      <button class="nav-item" data-view="booths">
+        <span class="nav-icon">🗂️</span> Booth Bookings
+      </button>
+      <button class="nav-item" data-view="halls">
+        <span class="nav-icon">🏟️</span> Halls &amp; Booths
+      </button>
+      <button class="nav-item" data-view="events">
+        <span class="nav-icon">📅</span> Events
+      </button>
+      <button class="nav-item" data-view="users" id="nav-users">
+        <span class="nav-icon">👥</span> User Management
+      </button>
+      <button class="nav-item" data-view="activity">
+        <span class="nav-icon">📝</span> Activity Log
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card" id="sidebar-user-card">
+        <div class="avatar" id="sidebar-avatar">U</div>
+        <div class="user-info">
+          <div class="user-name" id="sidebar-username">User</div>
+          <div class="user-role" id="sidebar-role">role</div>
+        </div>
+      </div>
+      <button class="btn btn-ghost btn-block" id="logout-btn">⏻ Logout</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <header class="topbar">
+      <button id="sidebar-toggle" class="icon-btn topbar-toggle">☰</button>
+      <div class="topbar-title" id="view-title">Dashboard</div>
+      <div class="topbar-actions">
+        <div class="event-selector">
+          <label>Event:</label>
+          <select id="global-event-select"><option value="">All events</option></select>
+        </div>
+        <div class="theme-pill">☀️ Light</div>
+      </div>
+    </header>
+
+    <main class="content" id="content-area">
+      <!-- ===== DASHBOARD VIEW ===== -->
+      <section class="view" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card stat-blue">
+            <div class="stat-icon">🏬</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-total">0</div>
+              <div class="stat-label">Total Bookings</div>
+            </div>
+          </div>
+          <div class="stat-card stat-green">
+            <div class="stat-icon">✅</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-confirmed">0</div>
+              <div class="stat-label">Confirmed</div>
+            </div>
+          </div>
+          <div class="stat-card stat-amber">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-pending">0</div>
+              <div class="stat-label">Pending</div>
+            </div>
+          </div>
+          <div class="stat-card stat-red">
+            <div class="stat-icon">❌</div>
+            <div class="stat-body">
+              <div class="stat-value" id="stat-cancelled">0</div>
+              <div class="stat-label">Cancelled</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid stats-grid-secondary">
+          <div class="mini-stat"><span class="mini-label">STD Confirmed</span><span class="mini-value" id="stat-std">0</span></div>
+          <div class="mini-stat"><span class="mini-label">EXH Confirmed</span><span class="mini-value" id="stat-exh">0</span></div>
+          <div class="mini-stat"><span class="mini-label">Type SS</span><span class="mini-value" id="stat-ss">0</span></div>
+          <div class="mini-stat"><span class="mini-label">Type RS</span><span class="mini-value" id="stat-rs">0</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>💳 Payment Overview (Termin Progress)</h3></div>
+          <div class="card-body">
+            <div class="payment-summary-bar" id="dashboard-payment-summary" style="margin-bottom:16px;"></div>
+            <div id="dashboard-overdue-list"></div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card">
+            <div class="card-header"><h3>Bookings by Country</h3></div>
+            <div class="card-body">
+              <div id="chart-country" class="bar-chart"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Bookings by City</h3></div>
+            <div class="card-body">
+              <div id="chart-city" class="bar-chart"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Recently Updated Bookings</h3></div>
+          <div class="card-body">
+            <table class="table" id="recent-table">
+              <thead><tr><th>Company</th><th>Booth #</th><th>Event</th><th>Status</th><th>Updated</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== BOOTHS VIEW ===== -->
+      <section class="view" id="view-booths" style="display:none;">
+        <div class="toolbar">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="booth-search" placeholder="Search company, booth no, city, VA, contact..." />
+          </div>
+          <select id="filter-status">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-secondary" id="import-btn">⬆ Import Excel</button>
+          <button class="btn btn-secondary" id="export-btn">⬇ Export Excel</button>
+          <button class="btn btn-secondary" id="export-pdf-btn">🖨 Export PDF</button>
+          <button class="btn btn-primary" id="add-booth-btn">+ Add Booking</button>
+        </div>
+
+        <div class="card table-card">
+          <div class="table-scroll">
+            <table class="table" id="booths-table">
+              <thead>
+                <tr>
+                  <th>Hall</th>
+                  <th>Booth(s)</th>
+                  <th>Booth Type</th>
+                  <th>Company (NPWP)</th>
+                  <th>No. VA</th>
+                  <th>Confirm (Std/Exh)</th>
+                  <th>Contact</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="booths-tbody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span id="booths-count-label">0 records</span>
+            <div class="pagination" id="booths-pagination"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== HALLS & BOOTHS VIEW ===== -->
+      <section class="view" id="view-halls" style="display:none;">
+        <div class="hall-card-grid" id="halls-summary-cards"></div>
+
+        <div class="toolbar">
+          <div class="status-pill-group" id="halls-status-pills">
+            <button type="button" class="status-pill active" data-status="">All</button>
+            <button type="button" class="status-pill status-pill-available" data-status="available">🟢 Available</button>
+            <button type="button" class="status-pill status-pill-booked" data-status="booked">🟠 Booked</button>
+            <button type="button" class="status-pill status-pill-blocked" data-status="blocked">🔴 Blocked</button>
+          </div>
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" id="halls-view-search" placeholder="Search booth number..." />
+          </div>
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-secondary" id="generate-inventory-btn">+ Generate Booth Slots</button>
+        </div>
+
+        <div class="card table-card">
+          <div class="card-header" id="halls-active-filter-header">
+            <h3>All Halls</h3>
+            <span class="halls-filter-clear" id="halls-clear-filter" style="display:none;">✕ Clear hall filter</span>
+          </div>
+          <div class="table-scroll">
+            <table class="table" id="halls-table">
+              <thead><tr><th>Hall</th><th>Booth #</th><th>Size</th><th>Status</th><th>Booked By</th><th>Actions</th></tr></thead>
+              <tbody id="halls-tbody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span id="halls-count-label">0 slots</span>
+            <div class="pagination" id="halls-pagination"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== EVENTS VIEW ===== -->
+      <section class="view" id="view-events" style="display:none;">
+        <div class="toolbar">
+          <div></div>
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-primary" id="add-event-btn">+ Add Event</button>
+        </div>
+        <div class="card table-card">
+          <div class="table-scroll">
+            <table class="table" id="events-table">
+              <thead><tr><th>Event Name</th><th>Location</th><th>Start</th><th>End</th><th>Booths</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="events-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== USERS VIEW ===== -->
+      <section class="view" id="view-users" style="display:none;">
+        <div class="toolbar">
+          <div></div>
+          <div class="toolbar-spacer"></div>
+          <button class="btn btn-primary" id="add-user-btn">+ Add User</button>
+        </div>
+        <div class="card table-card">
+          <div class="table-scroll">
+            <table class="table" id="users-table">
+              <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ACTIVITY VIEW ===== -->
+      <section class="view" id="view-activity" style="display:none;">
+        <div class="card table-card">
+          <div class="table-scroll">
+            <table class="table" id="activity-table">
+              <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Details</th></tr></thead>
+              <tbody id="activity-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ============== BOOTH MODAL ============== -->
+<div class="modal-overlay" id="booth-modal-overlay" style="display:none;">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="booth-modal-title">Add Booking</h3>
+      <button class="icon-btn" id="booth-modal-close">✕</button>
+    </div>
+    <form id="booth-form">
+      <input type="hidden" id="booth-id" />
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field">
+            <label>Event *</label>
+            <select id="f-event-id" required></select>
+          </div>
+          <div class="field">
+            <label>Hall</label>
+            <select id="f-hall">
+              <option value="">— Select Hall —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <input type="text" id="f-country" placeholder="INDONESIA" />
+          </div>
+          <div class="field">&nbsp;</div>
+          <div class="field field-wide">
+            <label>Booth Number(s)</label>
+            <div class="booth-picker-box">
+              <div class="booth-tags" id="booth-tags-display"><span class="booth-tags-empty">No booths selected yet</span></div>
+              <button type="button" class="btn btn-secondary btn-sm" id="open-booth-picker-btn">🏢 Select Booths</button>
+            </div>
+          </div>
+          <div class="field field-wide">
+            <label>Booth Type</label>
+            <div class="booth-type-options">
+              <label class="booth-type-pill"><input type="checkbox" value="Standard" class="f-booth-type" /> Standard</label>
+              <label class="booth-type-pill"><input type="checkbox" value="Space Only" class="f-booth-type" /> Space Only</label>
+            </div>
+          </div>
+          <div class="field field-wide">
+            <label>Company Name (NPWP) *</label>
+            <input type="text" id="f-company-name" required placeholder="Company legal name" />
+          </div>
+          <div class="field">
+            <label>NPWP Number</label>
+            <input type="text" id="f-npwp" />
+          </div>
+          <div class="field">
+            <label>No. VA</label>
+            <input type="text" id="f-no-va" />
+          </div>
+
+          <div class="field-section">Quantity</div>
+          <div class="field"><label>Size</label><input type="text" id="f-qty-size" /></div>
+          <div class="field"><label>STD</label><input type="number" min="0" id="f-qty-std" value="0" /></div>
+          <div class="field"><label>EXH</label><input type="number" min="0" id="f-qty-exh" value="0" /></div>
+
+          <div class="field-section">Confirm</div>
+          <div class="field"><label>Size</label><input type="text" id="f-confirm-size" /></div>
+          <div class="field"><label>STD</label><input type="number" min="0" id="f-confirm-std" value="0" /></div>
+          <div class="field"><label>EXH</label><input type="number" min="0" id="f-confirm-exh" value="0" /></div>
+
+          <div class="field-section">Type</div>
+          <div class="field"><label>SS</label><input type="number" min="0" id="f-type-ss" value="0" /></div>
+          <div class="field"><label>RS</label><input type="number" min="0" id="f-type-rs" value="0" /></div>
+
+          <div class="field-section">Shipping &amp; NPWP</div>
+          <div class="field field-wide"><label>Shipping Address</label><input type="text" id="f-shipping-address" /></div>
+          <div class="field"><label>No. NPWP</label><input type="text" id="f-no-npwp" /></div>
+          <div class="field field-wide"><label>NPWP Address</label><input type="text" id="f-npwp-address" /></div>
+
+          <div class="field-section">Contact Person</div>
+          <div class="field"><label>Name</label><input type="text" id="f-contact-name" /></div>
+          <div class="field"><label>Phone</label><input type="text" id="f-contact-phone" /></div>
+          <div class="field"><label>Email</label><input type="email" id="f-contact-email" /></div>
+
+          <div class="field-section">SPK &amp; Payment Termin (max 6)</div>
+          <div class="field"><label>SPK Date</label><input type="date" id="f-spk-date" /></div>
+          <div class="field"><label>SPK Number</label><input type="text" id="f-spk-number" placeholder="e.g. SPK/2026/001" /></div>
+          <div class="field"><label>Number of Termin</label>
+            <select id="f-termin-count">
+              <option value="1">1 Termin</option>
+              <option value="2">2 Termin</option>
+              <option value="3">3 Termin</option>
+              <option value="4">4 Termin</option>
+              <option value="5">5 Termin</option>
+              <option value="6">6 Termin</option>
+            </select>
+          </div>
+          <div class="field"><label>Currency</label>
+            <select id="f-currency">
+              <option value="IDR">IDR (Rp)</option>
+              <option value="USD">USD ($)</option>
+            </select>
+          </div>
+          <div class="field field-wide"><label>Total Contract Value</label><input type="number" min="0" step="0.01" id="f-contract-value" placeholder="e.g. 60000000" /></div>
+          <div class="field-wide" style="font-size:12px; color:var(--text-faint); margin-top:-8px;">💡 Save this booking first, then click "Manage Payments" from the booking row to check off each termin as paid and record its payment date.</div>
+
+          <div class="field-section">Other</div>
+          <div class="field"><label>Status</label>
+            <select id="f-status">
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="field field-wide"><label>Notes</label><input type="text" id="f-notes" /></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="booth-cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="booth-save-btn">Save Booking</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============== EVENT MODAL ============== -->
+<div class="modal-overlay" id="event-modal-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="event-modal-title">Add Event</h3>
+      <button class="icon-btn" id="event-modal-close">✕</button>
+    </div>
+    <form id="event-form">
+      <input type="hidden" id="event-id" />
+      <div class="modal-body">
+        <div class="field"><label>Event Name *</label><input type="text" id="ev-name" required placeholder="e.g. Hospital Expo Bali 2026" /></div>
+        <div class="field"><label>Location</label><input type="text" id="ev-location" /></div>
+        <div class="form-row-2">
+          <div class="field"><label>Start Date</label><input type="date" id="ev-start" /></div>
+          <div class="field"><label>End Date</label><input type="date" id="ev-end" /></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="event-cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============== USER MODAL ============== -->
+<div class="modal-overlay" id="user-modal-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="user-modal-title">Add User</h3>
+      <button class="icon-btn" id="user-modal-close">✕</button>
+    </div>
+    <form id="user-form">
+      <input type="hidden" id="user-id" />
+      <div class="modal-body">
+        <div class="field"><label>Full Name *</label><input type="text" id="u-name" required /></div>
+        <div class="field"><label>Username *</label><input type="text" id="u-username" required /></div>
+        <div class="field"><label id="u-password-label">Password *</label><input type="password" id="u-password" /></div>
+        <div class="field">
+          <label>Role *</label>
+          <select id="u-role" required>
+            <option value="admin">Admin</option>
+            <option value="staff">Staff</option>
+            <option value="viewer">Viewer</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="user-cancel-btn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============== GENERATE INVENTORY MODAL ============== -->
+<div class="modal-overlay" id="generate-inventory-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Generate Booth Slots</h3>
+      <button class="icon-btn" id="generate-inventory-close">✕</button>
+    </div>
+    <form id="generate-inventory-form">
+      <div class="modal-body">
+        <div class="field">
+          <label>Event *</label>
+          <select id="gi-event-id" required></select>
+        </div>
+        <div class="field">
+          <label>Hall *</label>
+          <select id="gi-hall" required></select>
+        </div>
+        <div class="form-row-2">
+          <div class="field"><label>Number of Slots *</label><input type="number" min="1" max="2000" id="gi-count" value="50" required /></div>
+          <div class="field"><label>Default Size</label><input type="text" id="gi-size" placeholder="e.g. 3x3" value="3x3" /></div>
+        </div>
+        <div class="field"><label>Booth Number Prefix (optional)</label><input type="text" id="gi-prefix" placeholder="Auto-derived from hall if left blank" /></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="generate-inventory-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Generate</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============== EDIT BOOTH SLOT MODAL ============== -->
+<div class="modal-overlay" id="edit-slot-overlay" style="display:none;">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Edit Booth Slot</h3>
+      <button class="icon-btn" id="edit-slot-close">✕</button>
+    </div>
+    <form id="edit-slot-form">
+      <input type="hidden" id="es-id" />
+      <div class="modal-body">
+        <div id="es-booked-notice" class="alert alert-error" style="display:none;">
+          This slot is currently booked — Hall and Booth Number are locked until it's unassigned from its booking. You can still change its Size.
+        </div>
+        <div class="field">
+          <label>Hall *</label>
+          <select id="es-hall" required></select>
+        </div>
+        <div class="form-row-2">
+          <div class="field"><label>Booth Number *</label><input type="text" id="es-booth-number" required /></div>
+          <div class="field"><label>Size</label><input type="text" id="es-size" placeholder="e.g. 3x3" /></div>
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="es-status">
+            <option value="available">Available</option>
+            <option value="blocked">Blocked</option>
+            <option value="booked" disabled>Booked (assign via a booking)</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" id="edit-slot-cancel">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============== BOOTH PICKER MODAL ============== -->
+<div class="modal-overlay" id="booth-picker-overlay" style="display:none;">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Select Booth(s)</h3>
+      <button class="icon-btn" id="booth-picker-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="picker-toolbar">
+        <select id="picker-hall-filter">
+          <option value="">All Halls</option>
+        </select>
+        <div class="search-box" style="flex:1;">
+          <span>🔍</span>
+          <input type="text" id="picker-search" placeholder="Search booth number, e.g. H5-012" />
+        </div>
+        <div class="picker-legend">
+          <span class="legend-swatch available"></span> Available
+          <span class="legend-swatch selected"></span> Selected
+          <span class="legend-swatch booked"></span> Booked
+        </div>
+      </div>
+      <div class="picker-summary" id="picker-summary">Loading booth inventory…</div>
+      <div class="booth-grid" id="booth-picker-grid"></div>
+      <div class="picker-pagination" id="picker-pagination"></div>
+    </div>
+    <div class="modal-footer">
+      <span class="picker-selected-count" id="picker-selected-count">0 booth(s) selected</span>
+      <div class="toolbar-spacer"></div>
+      <button type="button" class="btn btn-ghost" id="booth-picker-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="booth-picker-confirm">Confirm Selection</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== PAYMENT / TERMIN MODAL ============== -->
+<div class="modal-overlay" id="payment-modal-overlay" style="display:none;">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Payment Schedule — <span id="payment-modal-company"></span></h3>
+      <button class="icon-btn" id="payment-modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="payment-spk-info" id="payment-spk-info"></div>
+      <div class="payment-summary-bar" id="payment-summary-bar"></div>
+      <div id="payment-termin-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="payment-close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============== IMPORT MODAL ============== -->
+<div class="modal-overlay" id="import-modal-overlay" style="display:none;">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Import Bookings from Excel / CSV</h3>
+      <button class="icon-btn" id="import-modal-close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Target Event *</label>
+        <select id="import-event-id"></select>
+      </div>
+      <div class="dropzone" id="import-dropzone">
+        <div class="dz-icon">📄</div>
+        <div><strong>Click to choose</strong> or drag &amp; drop your .xlsx, .xls, or .csv file here</div>
+        <div style="font-size:12px; margin-top:6px; color:var(--text-faint);">Columns are auto-detected (Keterangan, Nomor Booth, Country, Company Name, No. VA, Quantity, Confirm, Type, Contact, etc.)</div>
+        <input type="file" id="import-file-input" accept=".xlsx,.xls,.csv" style="display:none;" />
+      </div>
+      <div id="import-status" style="margin-top:12px; font-size:13px; color:var(--text-muted);"></div>
+      <div id="import-preview-wrap" style="display:none;">
+        <div style="margin-top:14px; font-weight:700; font-size:13px;">Preview (<span id="import-count">0</span> rows detected)</div>
+        <div class="import-preview-table">
+          <table class="table" id="import-preview-table">
+            <thead><tr><th>Keterangan</th><th>Booth #</th><th>Company</th><th>No. VA</th><th>STD</th><th>EXH</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-ghost" id="import-cancel-btn">Cancel</button>
+      <button type="button" class="btn btn-primary" id="import-confirm-btn" disabled>Import Rows</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script src="/vendor/xlsx.full.min.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
